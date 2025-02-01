@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 import math
+from tqdm import tqdm
 
 class NeuralNetwork:
     def __init__(self,
@@ -17,11 +18,10 @@ class NeuralNetwork:
         
         
     def train_one_epoch(self, training_data, learning_rate:int)->None:
-        print(f"Training data length: {len(training_data)}")
-        # total_inputs = len(training_data)
-        total_inputs = 1
+        print(f"Training")
+        total_inputs = len(training_data)
         run = 0
-        while run < total_inputs:
+        for run in tqdm(range(total_inputs)):
             target_val = int(training_data[run][0])
             mnist_val = training_data[run][1:]
             # call forward step to step through the network for the current datapoint in the training set:
@@ -34,8 +34,25 @@ class NeuralNetwork:
             # print(f"Output weights pre-adjustment: {self.output_layer_weights}\n\nHidden weights pre-adjustment: {self.hidden_layer_weights}")
             self.update_weights(target_val, predicted_value, learning_rate)
             #print(f"Output weights post-adjustment: {self.output_layer_weights}\n\nHidden weights post-adjustment: {self.hidden_layer_weights}")
+    
+    def run_test(self, test_data)->float:
+        total_inputs = len(test_data)
+        run = 0
+        correct_answers = 0
+        print("Running Tests")
+        for run in tqdm(range(total_inputs)):
+            target_val = int(test_data[run][0])
+            mnist_val = test_data[run][1:]
+            # call forward step to step through the network for the current datapoint in the training set:
+            self.forward_step(mnist_val)
+            # print(f"Output from step: {self.output}")
             
-            run += 1
+            predicted_value = evaluate_results(self.output)
+            if predicted_value == target_val:
+                correct_answers += 1
+        
+        percent_correct = 100 * (correct_answers/total_inputs)
+        return percent_correct
     
     def forward_step(self, inputs:List[float])->None:
         #set bias
