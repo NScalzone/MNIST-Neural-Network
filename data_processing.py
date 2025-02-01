@@ -5,11 +5,11 @@ from typing import List
 TRAINING_DATA = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_train_with_bias.csv"
 TESTING_DATA = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_test_with_bias.csv"
 
-def generate_weights(units:int)->List[float]:
+def generate_weights(units:int, unit_length:int)->List[float]:
     model_weights = []
     for i in range(units):
         temp = []
-        for j in range(785):
+        for j in range(unit_length):
             temp.append(round((random.uniform(-0.5,0.5)),1))
         model_weights.append(temp)
     return model_weights
