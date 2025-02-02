@@ -6,9 +6,9 @@ import csv
 
 
 HIDDEN_UNITS = 20
-EPOCHS = 2
+EPOCHS = 3
 LEARNING_RATE = 0.1
-MOMENTUM = 0.0
+MOMENTUM = 0.9
 TRAINING_DATA_PATH = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_train_with_bias.csv"
 TESTING_DATA_PATH = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_test_with_bias.csv"
 HIDDEN_SAVE_PATH = f"/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/hidden_layer_weights_{HIDDEN_UNITS}_units.csv"
@@ -39,9 +39,9 @@ for current_run in range(EPOCHS):
 print(f"Training set results: {traindata_test_accuracy}\nTest set results: {testdata_test_accuracy}")
 
 # plt.plot(epochs, traindata_test_accuracy, label="Training Data % Correct")
-# plt.plot(epochs, testdata_test_accuracy, label="Testing Data % Correct")
-# plt.legend()
-# plt.show()
+plt.plot(epochs, testdata_test_accuracy, label="Testing Data % Correct")
+plt.legend()
+plt.show()
 
 with open(HIDDEN_SAVE_PATH, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)

@@ -29,9 +29,11 @@ class NeuralNetwork:
         
     def train_one_epoch(self, training_data, learning_rate:float, momentum:float)->None:
         print(f"Training")
+        print(f"Momentum output weights: {self.output_layer_momentum_weights}")
+        print(f"first line momentum hidden weights: {self.hidden_layer_momentum_weights[0]}")
         total_inputs = len(training_data)
-        # total_inputs = 1000
-        run = 0
+        # total_inputs = 10
+
         for run in tqdm(range(total_inputs)):
             target_val = int(training_data[run][0])
             mnist_val = training_data[run][1:]
@@ -40,13 +42,14 @@ class NeuralNetwork:
             self.forward_step(mnist_val)
            
             predicted_value = evaluate_results(self.output)
-
-            self.update_weights(target_val, predicted_value, learning_rate, momentum)
-
+            if predicted_value != target_val:
+                self.update_weights(target_val, predicted_value, learning_rate, momentum, mnist_val)
+            # print(f"Target: {target_val}, Predicted: {predicted_value}, First output weight value: {self.output_layer_weights[5][5]}")
+            # print(f"Output values: {self.output}")
         
     def run_test(self, test_data)->float:
-        # total_inputs = len(test_data)
-        total_inputs = 100
+        total_inputs = len(test_data)
+        # total_inputs = 100
         run = 0
         correct_answers = 0
         print("Running Tests")
@@ -74,19 +77,19 @@ class NeuralNetwork:
         for j in range(len(self.output)):
             self.output[j] = calculate_output(self.hidden_layer_outputs, self.output_layer_weights[j])
             
-    def update_weights(self, target_value:int, predicted_value:int, learning_rate:float, momentum:float):
+    def update_weights(self, target_value:int, predicted_value:int, learning_rate:float, momentum:float, training_inputs:List[float]):
         output_errors = []
         for i in range(len(self.output)):
             tk = 0.1
             if i == target_value:
-                if target_value == predicted_value:
-                    tk = 0.9
+                tk = 0.9
             
             output_error = calculate_output_error(self.output[i], tk)
             output_errors.append(output_error)
             for j in range(len(self.output_layer_weights[i])):
-                self.output_layer_weights[i][j] = adjust_weight(learning_rate, output_error, self.output_layer_weights[i][j],momentum,self.output_layer_momentum_weights[i][j])
-                self.output_layer_momentum_weights[i][j] = self.output_layer_weights[i][j]
+                original_weight = self.output_layer_weights[i][j]
+                self.output_layer_weights[i][j] = adjust_weight(learning_rate, output_error, self.output_layer_weights[i][j],momentum,self.output_layer_momentum_weights[i][j], output_value=self.hidden_layer_outputs[j])
+                self.output_layer_momentum_weights[i][j] = (self.output_layer_weights[i][j] - original_weight)
         
         # print(f"Output_layer_weights: {self.output_layer_weights}")
         for k in range(len(self.hidden_layer_outputs)-1):
@@ -100,9 +103,9 @@ class NeuralNetwork:
             hidden_error = calculate_hidden_error(hj, output_error_sum)
             # print(f"hidden error: {hidden_error}")
             for m in range(len(self.hidden_layer_weights[k])):
-
-                self.hidden_layer_weights[k][m] = adjust_weight(learning_rate, hidden_error, self.hidden_layer_weights[k][m],momentum,self.hidden_layer_momentum_weights[k][m])
-                self.hidden_layer_momentum_weights[k][m] = self.hidden_layer_weights[k][m]
+                original_weight = self.hidden_layer_weights[k][m]
+                self.hidden_layer_weights[k][m] = adjust_weight(learning_rate, hidden_error, self.hidden_layer_weights[k][m],momentum,self.hidden_layer_momentum_weights[k][m], training_inputs[m])
+                self.hidden_layer_momentum_weights[k][m] = (self.hidden_layer_weights[k][m] - original_weight)
 
         
 def calculate_output(input_vector:List[float], weight_vector:List[float])->float: 
@@ -120,14 +123,18 @@ def evaluate_results(results:List[float])->int:
 
 def calculate_output_error(ok:float, tk:float)->float:
     error = ok * (1-ok) * (tk - ok)
+    # print(f"In output error, ok: {ok}, tk: {tk}, error: {error}")
     return error
 
 def calculate_hidden_error(hj, output_error_sum):
     error = hj * (1-hj) * output_error_sum
     return error
 
-def adjust_weight(learning_rate:int, error:float, current_weight_value:float, momentum:float, momentum_weight:float)->float:
-    weight = current_weight_value + (learning_rate * error * current_weight_value) + (momentum * momentum_weight)
+def adjust_weight(learning_rate:int, error:float, current_weight_value:float, momentum:float, momentum_weight:float, output_value:float)->float:
+    delta_w = learning_rate * error * output_value
+    momentum_adjustment = momentum * momentum_weight
+    weight = current_weight_value + delta_w + momentum_adjustment
+    # print(f"Adjustment: current weight: {current_weight_value}, delta w = {delta_w}, momentum: {momentum_adjustment}, momentum weight = {momentum_weight}, end weight: {weight}")
     return weight
 
     
