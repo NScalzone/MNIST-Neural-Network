@@ -6,7 +6,7 @@ import csv
 
 
 HIDDEN_UNITS = 20
-EPOCHS = 3
+EPOCHS = 50
 LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 TRAINING_DATA_PATH = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_train_with_bias.csv"
@@ -32,15 +32,18 @@ for current_run in range(EPOCHS):
     
     testdata_test_accuracy.append(neuralnet.run_test(testing_data))
     
-    # traindata_test_accuracy.append(neuralnet.run_test(training_data))
+    traindata_test_accuracy.append(neuralnet.run_test(training_data))
     epochs.append(current_run + 1)
     
 
 print(f"Training set results: {traindata_test_accuracy}\nTest set results: {testdata_test_accuracy}")
 
-# plt.plot(epochs, traindata_test_accuracy, label="Training Data % Correct")
-plt.plot(epochs, testdata_test_accuracy, label="Testing Data % Correct")
+plt.plot(epochs, traindata_test_accuracy, label="Training Data")
+plt.plot(epochs, testdata_test_accuracy, label="Testing Data")
+plt.xlabel("Epochs")
+plt.ylabel("Percent correct")
 plt.legend()
+plt.title(f"Neural Network with {HIDDEN_UNITS} Hidden Units\nLearning Rate: {LEARNING_RATE}\nMomentum: {MOMENTUM}")
 plt.show()
 
 with open(HIDDEN_SAVE_PATH, 'w', newline='') as csvfile:

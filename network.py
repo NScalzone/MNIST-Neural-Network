@@ -29,8 +29,8 @@ class NeuralNetwork:
         
     def train_one_epoch(self, training_data, learning_rate:float, momentum:float)->None:
         print(f"Training")
-        print(f"Momentum output weights: {self.output_layer_momentum_weights}")
-        print(f"first line momentum hidden weights: {self.hidden_layer_momentum_weights[0]}")
+        # print(f"Momentum output weights: {self.output_layer_momentum_weights}")
+        # print(f"first line momentum hidden weights: {self.hidden_layer_momentum_weights[0]}")
         total_inputs = len(training_data)
         # total_inputs = 10
 
