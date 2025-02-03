@@ -5,21 +5,31 @@ import matplotlib.pyplot as plt
 import csv
 
 
-HIDDEN_UNITS = 20
-EPOCHS = 50
+HIDDEN_UNITS = 100
+EPOCHS = 25
 LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 TRAINING_DATA_PATH = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_train_with_bias.csv"
 TESTING_DATA_PATH = "/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/mnist_test_with_bias.csv"
-HIDDEN_SAVE_PATH = f"/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/hidden_layer_weights_{HIDDEN_UNITS}_units.csv"
-OUTPUT_SAVE_PATH = f"/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/output_layer_weights_{HIDDEN_UNITS}_hidden_units.csv"
+HIDDEN_SAVE_PATH = f"/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/hidden_layer_weights_{HIDDEN_UNITS}_units_half_dataset.csv"
+OUTPUT_SAVE_PATH = f"/Users/nicholasscalzone/Documents/COMPUTER SCIENCE CLASSES/Machine Learning/MNIST-Neural-Network/output_layer_weights_{HIDDEN_UNITS}_hidden_units_half_dataset.csv"
 
+# Uncomment these two lines, and comment the subesquent two, for running tests with saved data.
+# hidden_layer_weights = get_data(HIDDEN_SAVE_PATH)
+# output_weights = get_data(OUTPUT_SAVE_PATH)
+
+# The following lines generate a fresh set of weights for each experiement, and import the testing and training data
+# in scaled form, with bias added. 
 hidden_layer_weights = generate_weights(HIDDEN_UNITS, 785)
 output_weights = generate_weights(10, (HIDDEN_UNITS + 1))
 training_data = get_data(TRAINING_DATA_PATH)
 testing_data = get_data(TESTING_DATA_PATH)
 
 neuralnet = NeuralNetwork(hidden_layer_weights, output_weights, HIDDEN_UNITS)
+
+# *** Uncomment the following lines, and comment the training loop, to run the 
+# print(f"\nHidden Units: {HIDDEN_UNITS}, Momentum: {MOMENTUM}, Learning Rate: {LEARNING_RATE}")
+# neuralnet.create_confusion_matrix(testing_data)
 
 epochs = []
 traindata_test_accuracy = []

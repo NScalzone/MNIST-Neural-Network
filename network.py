@@ -29,11 +29,8 @@ class NeuralNetwork:
         
     def train_one_epoch(self, training_data, learning_rate:float, momentum:float)->None:
         print(f"Training")
-        # print(f"Momentum output weights: {self.output_layer_momentum_weights}")
-        # print(f"first line momentum hidden weights: {self.hidden_layer_momentum_weights[0]}")
         total_inputs = len(training_data)
-        # total_inputs = 10
-
+        
         for run in tqdm(range(total_inputs)):
             target_val = int(training_data[run][0])
             mnist_val = training_data[run][1:]
@@ -41,24 +38,21 @@ class NeuralNetwork:
             # call forward step to step through the network for the current datapoint in the training set:
             self.forward_step(mnist_val)
            
+            # If predicted value is incorrect, adjust weights:
             predicted_value = evaluate_results(self.output)
             if predicted_value != target_val:
                 self.update_weights(target_val, predicted_value, learning_rate, momentum, mnist_val)
-            # print(f"Target: {target_val}, Predicted: {predicted_value}, First output weight value: {self.output_layer_weights[5][5]}")
-            # print(f"Output values: {self.output}")
         
     def run_test(self, test_data)->float:
         total_inputs = len(test_data)
-        # total_inputs = 100
-        run = 0
         correct_answers = 0
         print("Running Tests")
         for run in tqdm(range(total_inputs)):
             target_val = int(test_data[run][0])
             mnist_val = test_data[run][1:]
+            
             # call forward step to step through the network for the current datapoint in the training set:
             self.forward_step(mnist_val)
-            # print(f"Output from step: {self.output}")
             
             predicted_value = evaluate_results(self.output)
             if predicted_value == target_val:
@@ -66,6 +60,47 @@ class NeuralNetwork:
         
         percent_correct = 100 * (correct_answers/total_inputs)
         return percent_correct
+    
+    def create_confusion_matrix(self, test_data)->None:
+        confusion_matrix = []
+        for i in range(10):
+            temp = []
+            confusion_matrix.append(temp)
+            for j in range(10):
+                confusion_matrix[i].append(0)
+        total_inputs = len(test_data)
+     
+   
+        for run in range(total_inputs):
+            target_val = int(test_data[run][0])
+            mnist_val = test_data[run][1:]
+            
+            # call forward step to step through the network for the current datapoint in the training set:
+            self.forward_step(mnist_val)            
+            predicted_value = evaluate_results(self.output)
+            confusion_matrix[int(target_val)][int(predicted_value)] += 1
+
+        print("============================================================================================")
+        print("Confusion Matrix:")
+        print("Predicted Values:\t0\t1\t2\t3\t4\t5\t6\t7\t8\t9\trecall\n----------------------------------------------------------------------------------------------------")
+        precision = [0,0,0,0,0,0,0,0,0,0]
+        for k in range(10):
+            print(f"Target value: {k}\t\t", end='')
+            sum = 0
+            for l in range(10):
+                print(f"{confusion_matrix[k][l]}\t", end='')
+                sum += confusion_matrix[k][l]
+                precision[l] += confusion_matrix[k][l]
+            recall = int(100 * ((confusion_matrix[k][k])/sum))
+            print(recall)
+            print('----------------------------------------------------------------------------------------------------')
+
+        print("Precision:\t\t",end='')
+        for m in range(10):
+            precison_value = int(100*((confusion_matrix[m][m])/(precision[m])))
+            print(f"{precison_value}\t",end='')
+            
+        print('\n----------------------------------------------------------------------------------------------------')
     
     def forward_step(self, inputs:List[float])->None:
         #set bias
@@ -91,17 +126,12 @@ class NeuralNetwork:
                 self.output_layer_weights[i][j] = adjust_weight(learning_rate, output_error, self.output_layer_weights[i][j],momentum,self.output_layer_momentum_weights[i][j], output_value=self.hidden_layer_outputs[j])
                 self.output_layer_momentum_weights[i][j] = (self.output_layer_weights[i][j] - original_weight)
         
-        # print(f"Output_layer_weights: {self.output_layer_weights}")
         for k in range(len(self.hidden_layer_outputs)-1):
-
             hj = self.hidden_layer_outputs[k+1]
             output_error_sum = 0
-            # print(f"Output errors: {output_errors}")
             for n in range(len(output_errors)):
                 output_error_sum += (self.output_layer_weights[n][k] * output_errors[n])
-            # print(f"Calculating hidden error, hj = {hj}, output error sum = {output_error_sum}")
             hidden_error = calculate_hidden_error(hj, output_error_sum)
-            # print(f"hidden error: {hidden_error}")
             for m in range(len(self.hidden_layer_weights[k])):
                 original_weight = self.hidden_layer_weights[k][m]
                 self.hidden_layer_weights[k][m] = adjust_weight(learning_rate, hidden_error, self.hidden_layer_weights[k][m],momentum,self.hidden_layer_momentum_weights[k][m], training_inputs[m])
@@ -123,7 +153,6 @@ def evaluate_results(results:List[float])->int:
 
 def calculate_output_error(ok:float, tk:float)->float:
     error = ok * (1-ok) * (tk - ok)
-    # print(f"In output error, ok: {ok}, tk: {tk}, error: {error}")
     return error
 
 def calculate_hidden_error(hj, output_error_sum):
@@ -134,7 +163,6 @@ def adjust_weight(learning_rate:int, error:float, current_weight_value:float, mo
     delta_w = learning_rate * error * output_value
     momentum_adjustment = momentum * momentum_weight
     weight = current_weight_value + delta_w + momentum_adjustment
-    # print(f"Adjustment: current weight: {current_weight_value}, delta w = {delta_w}, momentum: {momentum_adjustment}, momentum weight = {momentum_weight}, end weight: {weight}")
     return weight
 
     
